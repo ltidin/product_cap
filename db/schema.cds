@@ -8,7 +8,7 @@ using {
 using {SapStandartEntity} from './common';
 
 
-entity Product : SapStandartEntity, cuid, managed {
+entity Products : SapStandartEntity, cuid, managed {
     prod_id       : String(16);
     prodGroup     : Association to one ProductGroup;
     height        : Integer;
@@ -21,6 +21,8 @@ entity Product : SapStandartEntity, cuid, managed {
 
 entity ProductGroup : SapStandartEntity {
     key ID       : String(3);
-        pgname   : String(50);
+        name     : String(50);
         imageURL : String;
+        products: Association to many Products on products.prodGroup = $self;
 }
+
