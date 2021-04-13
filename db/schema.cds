@@ -5,10 +5,10 @@ using {
     managed,
     Currency
 } from '@sap/cds/common';
-using {SapStandartEntity} from './common';
+using {SapDefault} from './common';
 
 
-entity Products : SapStandartEntity, cuid, managed {
+entity Products : SapDefault, cuid, managed {
     prod_id       : String(16);
     prodGroup     : Association to one ProductGroup;
     phase         : Association to one Phase;
@@ -20,7 +20,7 @@ entity Products : SapStandartEntity, cuid, managed {
     taxrate       : Decimal;
 }
 
-entity ProductGroup : SapStandartEntity {
+entity ProductGroup : SapDefault {
     key ID       : String(3);
         name     : String(50);
         imageURL : String;
@@ -28,7 +28,7 @@ entity ProductGroup : SapStandartEntity {
                        on products.prodGroup = $self;
 }
 
-entity Phase : SapStandartEntity {
+entity Phase : SapDefault {
     key ID       : String(3);
         phase    : String(50);
         products : Association to many Products

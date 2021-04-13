@@ -1,5 +1,5 @@
 type Mandt : String(3);
 
-entity SapStandartEntity {
+aspect SapDefault {
     mandt : Mandt;
 }
