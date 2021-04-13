@@ -10,12 +10,14 @@ using {SapDefault} from './common';
 
 entity Products : SapDefault, cuid, managed {
     prodId        : String(16);
-    pgId          : ProductGroup : ID;
-    prodGroup     : Association to one ProductGroup
+    pgId          : ProductGroups : ID;
+    prodGroup     : Association to one ProductGroups
                         on  prodGroup.ID    = pgId
                         and prodGroup.mandt = mandt;
-    phaseId       : Phase : ID;
-    phase         : Association to one Phase
+    markets       : Association to many Markets
+                        on markets.product = $self;
+    phaseId       : Phases : ID;
+    phase         : Association to one Phases
                         on  phase.ID    = phaseId
                         and phase.mandt = mandt;
     sizeUom       : UOM : msehi;
@@ -30,7 +32,7 @@ entity Products : SapDefault, cuid, managed {
     taxrate       : Decimal;
 }
 
-entity ProductGroup : SapDefault {
+entity ProductGroups : SapDefault {
     key ID       : String(3);
         name     : String(50);
         imageURL : String;
@@ -38,7 +40,7 @@ entity ProductGroup : SapDefault {
                        on products.prodGroup = $self;
 }
 
-entity Phase : SapDefault {
+entity Phases : SapDefault {
     key ID       : String(3);
         phase    : String(50);
         products : Association to many Products
@@ -52,4 +54,25 @@ entity UOM : SapDefault {
         isocode  : String(3);
         products : Association to many Products
                        on products.uom = $self;
+}
+
+entity Markets : SapDefault, cuid, managed {
+    prodUUID  : Products : ID;
+    marketId  : Countries : ID;
+    product   : Association to one Products
+                    on  product.ID    = prodUUID
+                    and product.mandt = mandt;
+    country   : Association to one Countries
+                    on  country.ID    = marketId
+                    and country.mandt = mandt;
+    status    : String(10);
+    startDate : Date;
+    endDate   : Date;
+}
+
+entity Countries : SapDefault {
+    key ID      : String(3);
+        country : String(50);
+        markets : Association to many Markets
+                      on markets.country = $self;
 }
