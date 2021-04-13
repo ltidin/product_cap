@@ -16,6 +16,8 @@ entity Products : SapDefault, cuid, managed {
                         and prodGroup.mandt = mandt;
     markets       : Association to many Markets
                         on markets.product = $self;
+    orders        : Association to many Orders
+                        on orders.product = $self;
     phaseId       : Phases : ID;
     phase         : Association to one Phases
                         on  phase.ID    = phaseId
@@ -75,4 +77,22 @@ entity Countries : SapDefault {
         country : String(50);
         markets : Association to many Markets
                       on markets.country = $self;
+}
+
+entity Orders : SapDefault, cuid, managed {
+    prodUUID     : Products : ID;
+    product      : Association to one Products
+                       on  product.ID    = prodUUID
+                       and product.mandt = mandt;
+    mrktUUID     : Markets : ID;
+    market       : Association to one Markets
+                       on  market.ID    = mrktUUID
+                       and market.mandt = mandt;
+    orderID      : String(10);
+    quantity     : Integer;
+    deliveryDate : Date;
+    year         : String(4);
+    netAmount    : Decimal;
+    grossAmount  : Decimal;
+    currency     : Currency;
 }
