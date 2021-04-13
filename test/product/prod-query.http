@@ -1,0 +1,5 @@
+##Get products with expand to prod group
+GET: http://localhost:4004/product/Products?$expand=prodGroup
+
+##Get products with expand to phase
+GET: http://localhost:4004/product/Products?$expand=phase
