@@ -12,6 +12,7 @@ entity Products : SapDefault, cuid, managed {
     prod_id       : String(16);
     prodGroup     : Association to one ProductGroup;
     phase         : Association to one Phase;
+    sizeuom       : Association to one UOM;
     height        : Integer;
     depth         : Integer;
     width         : Integer;
@@ -34,4 +35,10 @@ entity Phase : SapDefault {
         products : Association to many Products
                        on products.phase = $self;
 
+}
+
+entity UOM : SapDefault {
+    key msehi   : String(3);
+        dimid   : String(6);
+        isocode : String(3);
 }
