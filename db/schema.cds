@@ -3,96 +3,109 @@ namespace db;
 using {
     cuid,
     managed,
-    Currency
+    Currency,
+    Country
 } from '@sap/cds/common';
-using {SapDefault} from './common';
+
+using {SapDefault} from './lib/common';
+
+annotate cuid with {
+    ID @odata.Type : 'Edm.String';
+};
 
 
 entity Products : SapDefault, cuid, managed {
-    prodId        : String(16);
-    pgId          : ProductGroups : ID;
-    prodGroup     : Association to one ProductGroups
-                        on  prodGroup.ID    = pgId
-                        and prodGroup.mandt = mandt;
-    markets       : Association to many Markets
-                        on markets.product = $self;
-    orders        : Association to many Orders
-                        on orders.product = $self;
-    phaseId       : Phases : ID;
-    phase         : Association to one Phases
-                        on  phase.ID    = phaseId
-                        and phase.mandt = mandt;
-    sizeUom       : UOM : msehi;
-    uom           : Association to one UOM
-                        on  uom.msehi = sizeUom
-                        and uom.mandt = mandt;
-    height        : Integer;
-    depth         : Integer;
-    width         : Integer;
-    price         : Decimal;
-    priceCurrency : Currency;
-    taxrate       : Decimal;
+    prodId          : String(16);
+    description     : localized String;
+    pgId            : ProductGroups : ID;
+    toProdGroup     : Association to one ProductGroups
+                          on  toProdGroup.ID    = pgId
+                          and toProdGroup.mandt = mandt;
+    toMarkets       : Association to many Markets
+                          on toMarkets.toProduct = $self;
+    toOrders        : Association to many Ord2Prod
+                          on  toOrders.productID = ID
+                          and toOrders.mandt     = mandt;
+    sizeUom         : UOM : msehi;
+    toUom           : Association to one UOM
+                          on  toUom.msehi = sizeUom
+                          and toUom.mandt = mandt;
+    height          : Integer;
+    depth           : Integer;
+    width           : Integer;
+    price           : Decimal;
+    toPriceCurrency : Currency;
+    taxrate         : Decimal;
 }
 
 entity ProductGroups : SapDefault {
-    key ID       : String(3);
-        name     : String(50);
-        imageURL : String;
-        products : Association to many Products
-                       on products.prodGroup = $self;
+    key ID         : Integer;
+        name       : localized String(50);
+        imageURL   : String;
+        toProducts : Association to many Products
+                         on toProducts.toProdGroup = $self;
 }
 
 entity Phases : SapDefault {
-    key ID       : String(3);
-        phase    : String(50);
-        products : Association to many Products
-                       on products.phase = $self;
-
+    key ID          : String(5);
+        name        : localized String(50);
+        description : localized String;
+        toOrders    : Association to many Orders
+                          on toOrders.toPhase = $self;
 }
 
+
 entity UOM : SapDefault {
-    key msehi    : String(3);
-        dimid    : String(6);
-        isocode  : String(3);
-        products : Association to many Products
-                       on products.uom = $self;
+    key msehi      : String(3);
+        dimid      : String(6);
+        isocode    : String(3);
+        toProducts : Association to many Products
+                         on toProducts.toUom = $self;
 }
 
 entity Markets : SapDefault, cuid, managed {
-    prodUUID  : Products : ID;
-    marketId  : Countries : ID;
-    product   : Association to one Products
-                    on  product.ID    = prodUUID
-                    and product.mandt = mandt;
-    country   : Association to one Countries
-                    on  country.ID    = marketId
-                    and country.mandt = mandt;
-    status    : String(10);
-    startDate : Date;
-    endDate   : Date;
-}
-
-entity Countries : SapDefault {
-    key ID      : String(3);
-        country : String(50);
-        markets : Association to many Markets
-                      on markets.country = $self;
+    prodUUID    : Products : ID;
+    name        : localized String;
+    description : localized String;
+    toProduct   : Association to one Products
+                      on  toProduct.ID    = prodUUID
+                      and toProduct.mandt = mandt;
+    toCountry   : Country;
+    status      : String(10);
+    startDate   : Date;
+    endDate     : Date;
 }
 
 entity Orders : SapDefault, cuid, managed {
-    prodUUID     : Products : ID;
-    product      : Association to one Products
-                       on  product.ID    = prodUUID
-                       and product.mandt = mandt;
+    toProducts   : Composition of many Ord2Prod
+                       on  toProducts.orderID = ID
+                       and toProducts.mandt   = mandt;
     mrktUUID     : Markets : ID;
-    market       : Association to one Markets
-                       on  market.ID    = mrktUUID
-                       and market.mandt = mandt;
+    toMarket     : Association to one Markets
+                       on  toMarket.ID    = mrktUUID
+                       and toMarket.mandt = mandt;
+    phaseID      : Phases : ID;
+    toPhase      : Association to one Phases
+                       on  toPhase.ID    = phaseID
+                       and toPhase.mandt = mandt;
     orderID      : String(10);
-    quantity     : Integer;
+    description  : String;
     deliveryDate : Date;
     year         : String(4);
     netAmount    : Decimal;
     grossAmount  : Decimal;
     currency     : Currency;
+}
+
+entity Ord2Prod : SapDefault {
+    key orderID   : cuid : ID;
+    key productID : cuid : ID;
+        quantity  : Integer;
+        phaseID   : Phases : ID;
+        toProduct : Association to Products
+                        on  toProduct.ID    = productID
+                        and toProduct.mandt = mandt;
+        toOrder   : Association to Orders
+                        on  toOrder.ID    = orderID
+                        and toOrder.mandt = mandt;
 }

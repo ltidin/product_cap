@@ -1,0 +1,33 @@
+###Post order-prod linkage
+
+POST http://localhost:4004/product/Ord2Prod
+Content-Type: application/json
+
+{
+    "order_ID" : "c627a049-0138-4116-90b9-111ce03b66b4",
+    "product_ID" : "c627a049-0138-4116-90b9-491ce03b66b1"
+}
+
+
+###Post order-prod linkage
+POST http://localhost:4004/product/Ord2Prod
+Content-Type: application/json
+
+{
+    "order_ID" : "c627a049-0138-4116-90b9-111ce03b66b4",
+    "product_ID" : "c627a049-0138-4116-90b9-491ce03b66b2"
+}
+
+###Deep insert
+
+POST http://localhost:4004/product/Orders 
+Content-Type: application/json
+
+{
+    "mandt": "001",
+    "mrktUUID": "c627a049-0138-4116-90b9-491ce03b1111",
+    "orderID": "1019300",
+    "products" : [
+        {"product_ID" : "c627a049-0138-4116-90b9-491ce03b66b2"}
+    ]
+}
