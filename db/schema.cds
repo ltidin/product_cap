@@ -7,14 +7,18 @@ using {
     Country
 } from '@sap/cds/common';
 
-using {SapDefault} from './lib/common';
+using {lib} from './lib/common';
 
 annotate cuid with {
-    ID @odata.Type : 'Edm.String';
+    ID @(
+        odata.Type  : 'Edm.String',
+        title       : '{i18n>guid}',
+        description : '{i18n>guidDescription}'
+    );
 };
 
 
-entity Products : SapDefault, cuid, managed {
+entity Products : lib.SapDefault, cuid, managed {
     prodId          : String(16);
     description     : localized String;
     pgId            : ProductGroups : ID;
@@ -38,7 +42,7 @@ entity Products : SapDefault, cuid, managed {
     taxrate         : Decimal;
 }
 
-entity ProductGroups : SapDefault {
+entity ProductGroups : lib.SapDefault {
     key ID         : Integer;
         name       : localized String(50);
         imageURL   : String;
@@ -46,7 +50,7 @@ entity ProductGroups : SapDefault {
                          on toProducts.toProdGroup = $self;
 }
 
-entity Phases : SapDefault {
+entity Phases : lib.SapDefault {
     key ID          : String(5);
         name        : localized String(50);
         description : localized String;
@@ -55,7 +59,7 @@ entity Phases : SapDefault {
 }
 
 
-entity UOM : SapDefault {
+entity UOM : lib.SapDefault {
     key msehi      : String(3);
         dimid      : String(6);
         isocode    : String(3);
@@ -63,7 +67,7 @@ entity UOM : SapDefault {
                          on toProducts.toUom = $self;
 }
 
-entity Markets : SapDefault, cuid, managed {
+entity Markets : lib.SapDefault, cuid, managed {
     prodUUID    : Products : ID;
     name        : localized String;
     description : localized String;
@@ -76,7 +80,7 @@ entity Markets : SapDefault, cuid, managed {
     endDate     : Date;
 }
 
-entity Orders : SapDefault, cuid, managed {
+entity Orders : lib.SapDefault, cuid, managed {
     toProducts   : Composition of many Ord2Prod
                        on  toProducts.orderID = ID
                        and toProducts.mandt   = mandt;
@@ -97,15 +101,107 @@ entity Orders : SapDefault, cuid, managed {
     currency     : Currency;
 }
 
-entity Ord2Prod : SapDefault {
+entity Ord2Prod : lib.SapDefault {
     key orderID   : cuid : ID;
     key productID : cuid : ID;
-        quantity  : Integer;
+        quantity  : lib.TQuantityInt;
         phaseID   : Phases : ID;
         toProduct : Association to Products
                         on  toProduct.ID    = productID
                         and toProduct.mandt = mandt;
-        toOrder   : Association to Orders
+        toOrder   : Association to one Orders
                         on  toOrder.ID    = orderID
                         and toOrder.mandt = mandt;
+        toPhase   : Association to one Phases
+                        on  toPhase.ID    = phaseID
+                        and toPhase.mandt = mandt;
 }
+
+define view OrdersPhasesVH as
+    select from Phases
+    where
+        ID like 'O%';
+
+
+//-----------------------
+//Fields annotaions
+//----------------------
+annotate UOM with {
+    msehi @(title : '{i18n>msehiUOM}');
+};
+
+
+annotate Products with @(title : '{i18n>productService}') {
+    ID          @(title : '{i18n>productGUID}');
+    description @(title : '{i18n>description}');
+    prodId      @(title : '{i18n>prodID}')  @Common.FieldControl : #Mandatory;
+};
+
+annotate Phases with @(title : '{i18n>phaseService}') {
+    ID          @(title : '{i18n>phaseID}');
+    name        @(title : '{i18n>phaseName}');
+    description @(title : '{i18n>description}')
+};
+
+
+annotate Orders with @(title : '{i18n>ordersService}') {
+    ID          @(UI.Hidden : true);
+    orderID     @(
+        title                       : '{i18n>orderID}',
+        Common.FieldControl         : #ReadOnly,
+        Search.defaultSearchElement : true,
+        Common.ValueList            : {
+            CollectionPath : 'Orders',
+            Parameters     : [
+                {
+                    $Type             : 'Common.ValueListParameterInOut',
+                    LocalDataProperty : 'orderID',
+                    ValueListProperty : 'orderID'
+                },
+                {
+                    $Type             : 'Common.ValueListParameterDisplayOnly',
+                    ValueListProperty : 'description',
+                },
+            ]
+        }
+    );
+    description @(title : '{i18n>description}');
+    netAmount   @(
+        title               : '{i18n>netAmount}',
+        Common.FieldControl : #ReadOnly,
+    );
+    grossAmount @(
+        title               : '{i18n>grossAmount}',
+        Common.FieldControl : #ReadOnly,
+    );
+    toProducts  @(
+        title       : '{i18n>orderProdItems}',
+        description : '{i18n>orderProdItems}'
+    );
+    phaseID     @(Common : {
+        ValueListWithFixedValues : true,
+        ValueList                : {
+            CollectionPath : 'OrdersPhasesVH',
+            Parameters     : [
+                {
+                    $Type             : 'Common.ValueListParameterInOut',
+                    LocalDataProperty : 'phaseID',
+                    ValueListProperty : 'ID'
+                },
+                {
+                    $Type             : 'Common.ValueListParameterDisplayOnly',
+                    ValueListProperty : 'name',
+                },
+                {
+                    $Type             : 'Common.ValueListParameterDisplayOnly',
+                    ValueListProperty : 'description',
+                },
+            ]
+        }
+    });
+
+};
+
+annotate Ord2Prod with {
+    quantity @(Common.FieldControl : #Mandatory);
+};
