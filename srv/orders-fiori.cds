@@ -103,6 +103,12 @@ annotate ProductService.Orders with @( //Header level annotations
             ]
 
         },
+        Identification            : [{
+            $Type  : 'UI.DataFieldForAction',
+            Action : 'ProductService.addProdToOrder',
+            Label  : '{i18n>addProd}',
+
+        }, ],
         DataPoint #NetAmount      : {
             $Type       : 'UI.DataPointType',
             Value       : netAmount,
@@ -118,9 +124,13 @@ annotate ProductService.Orders with @( //Header level annotations
     },
     UI.Facets : [
         {
-            $Type  : 'UI.ReferenceFacet',
-            Label  : '{i18n>orderProdItems}',
-            Target : 'toProducts/@UI.LineItem'
+            $Type  : 'UI.CollectionFacet',
+            ID     : 'Products',
+            Label  : '{i18n>productServices}',
+            Facets : [{
+                $Type  : 'UI.ReferenceFacet',
+                Target : 'toProducts/@UI.LineItem'
+            }]
         },
         {
             $Type  : 'UI.CollectionFacet',
@@ -139,7 +149,10 @@ annotate ProductService.Orders with @( //Header level annotations
 annotate db.Ord2Prod with @(
     //List report
     //Orders Items
-    Capabilities : {Insertable : false},
+    Capabilities : {InsertRestrictions : {
+        $Type         : 'Capabilities.InsertRestrictionsType',
+        ![@UI.Hidden] : true,
+    }, },
     UI           : {LineItem : [
         {
             $Type             : 'UI.DataField',
@@ -166,7 +179,7 @@ annotate db.Ord2Prod with @(
         },
         {
             $Type  : 'UI.DataFieldForAction',
-            Action : 'ProductService.EntityContainer/addProductToOrder',
+            Action : 'ProductService.addProductToOrder',
             Label  : '{i18n>add}'
         }
     ], },
@@ -218,20 +231,30 @@ annotate db.Ord2Prod with @(
     },
 );
 
-annotate ProductService.addProductToOrder(prodID
-@(Common : {ValueListMapping : {
-    Label          : '{i18n>productServices}',
-    CollectionPath : 'Products',
-    Parameters     : [
-        {
-            $Type             : 'Common.ValueListParameterInOut',
-            LocalDataProperty : prodID,
-            ValueListProperty : 'prodId'
-        },
-        {
-            $Type             : 'Common.ValueListParameterDisplayOnly',
-            ValueListProperty : 'description'
-        },
-    ]
-}, }),
-quantity);
+annotate ProductService.Ord2Prod actions {
+    /*addProductToOrder(prodID
+    @(Common : {ValueListMapping : {
+        Label          : '{i18n>productServices}',
+        CollectionPath : 'Products',
+        Parameters     : [
+            {
+                $Type             : 'Common.ValueListParameterInOut',
+                LocalDataProperty : 'prodID',
+                ValueListProperty : 'prodId'
+            },
+            {
+                $Type             : 'Common.ValueListParameterDisplayOnly',
+                ValueListProperty : 'description'
+            },
+        ]
+    }, }),
+    quantity);*/
+}
+
+annotate ProductService.Orders actions {
+    @(
+        Common.SideEffects              : {TargetEntities : [_it], },
+        cds.odata.bindingparameter.name : '_it'
+    )
+    addProdToOrder(prodID, quantity @UI.ParameterDefaultValue : 1);
+}

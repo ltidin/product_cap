@@ -134,7 +134,29 @@ annotate UOM with {
 annotate Products with @(title : '{i18n>productService}') {
     ID          @(title : '{i18n>productGUID}');
     description @(title : '{i18n>description}');
-    prodId      @(title : '{i18n>prodID}')  @Common.FieldControl : #Mandatory;
+    prodId      @(
+        title                       : '{i18n>prodID}',
+        Common.FieldControl         : #Mandatory,
+        Search.defaultSearchElement : true,
+        Common.ValueList            : {
+            CollectionPath : 'Products',
+            Parameters     : [
+                {
+                    $Type             : 'Common.ValueListParameterInOut',
+                    LocalDataProperty : 'prodId',
+                    ValueListProperty : 'prodId'
+                },
+                {
+                    $Type             : 'Common.ValueListParameterDisplayOnly',
+                    ValueListProperty : 'description',
+                },
+                {
+                    $Type             : 'Common.ValueListParameterDisplayOnly',
+                    ValueListProperty : 'toProdGroup/name',
+                }
+            ]
+        }
+    );
 };
 
 annotate Phases with @(title : '{i18n>phaseService}') {
@@ -204,4 +226,8 @@ annotate Orders with @(title : '{i18n>ordersService}') {
 
 annotate Ord2Prod with {
     quantity @(Common.FieldControl : #Mandatory);
+};
+
+annotate ProductGroups with {
+    name @(title : '{i18n>prodGrName}')
 };
