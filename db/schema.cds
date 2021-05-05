@@ -18,22 +18,19 @@ annotate cuid with {
 };
 
 
-entity Products : lib.SapDefault, cuid, managed {
+entity Products : cuid, managed {
     prodId          : String(16);
     description     : localized String;
     pgId            : ProductGroups : ID;
     toProdGroup     : Association to one ProductGroups
-                          on  toProdGroup.ID    = pgId
-                          and toProdGroup.mandt = mandt;
+                          on toProdGroup.ID = pgId;
     toMarkets       : Association to many Markets
                           on toMarkets.toProduct = $self;
     toOrders        : Association to many Ord2Prod
-                          on  toOrders.productID = ID
-                          and toOrders.mandt     = mandt;
+                          on toOrders.productID = ID;
     sizeUom         : UOM : msehi;
     toUom           : Association to one UOM
-                          on  toUom.msehi = sizeUom
-                          and toUom.mandt = mandt;
+                          on toUom.msehi = sizeUom;
     height          : Integer;
     depth           : Integer;
     width           : Integer;
@@ -42,7 +39,7 @@ entity Products : lib.SapDefault, cuid, managed {
     taxrate         : Decimal;
 }
 
-entity ProductGroups : lib.SapDefault {
+entity ProductGroups {
     key ID         : Integer;
         name       : localized String(50);
         imageURL   : String;
@@ -50,7 +47,7 @@ entity ProductGroups : lib.SapDefault {
                          on toProducts.toProdGroup = $self;
 }
 
-entity Phases : lib.SapDefault {
+entity Phases {
     key ID          : String(5);
         name        : localized String(50);
         description : localized String;
@@ -59,7 +56,7 @@ entity Phases : lib.SapDefault {
 }
 
 
-entity UOM : lib.SapDefault {
+entity UOM {
     key msehi      : String(3);
         dimid      : String(6);
         isocode    : String(3);
@@ -67,31 +64,27 @@ entity UOM : lib.SapDefault {
                          on toProducts.toUom = $self;
 }
 
-entity Markets : lib.SapDefault, cuid, managed {
+entity Markets : cuid, managed {
     prodUUID    : Products : ID;
     name        : localized String;
     description : localized String;
     toProduct   : Association to one Products
-                      on  toProduct.ID    = prodUUID
-                      and toProduct.mandt = mandt;
+                      on toProduct.ID = prodUUID;
     toCountry   : Country;
     status      : String(10);
     startDate   : Date;
     endDate     : Date;
 }
 
-entity Orders : lib.SapDefault, cuid, managed {
+entity Orders : cuid, managed {
     toProducts   : Composition of many Ord2Prod
-                       on  toProducts.orderID = ID
-                       and toProducts.mandt   = mandt;
+                       on toProducts.orderID = ID;
     mrktUUID     : Markets : ID;
     toMarket     : Association to one Markets
-                       on  toMarket.ID    = mrktUUID
-                       and toMarket.mandt = mandt;
+                       on toMarket.ID = mrktUUID;
     phaseID      : Phases : ID;
     toPhase      : Association to one Phases
-                       on  toPhase.ID    = phaseID
-                       and toPhase.mandt = mandt;
+                       on toPhase.ID = phaseID;
     orderID      : String(10);
     description  : String;
     deliveryDate : Date;
@@ -101,20 +94,17 @@ entity Orders : lib.SapDefault, cuid, managed {
     currency     : Currency;
 }
 
-entity Ord2Prod : lib.SapDefault {
+entity Ord2Prod {
     key orderID   : cuid : ID;
     key productID : cuid : ID;
         quantity  : lib.TQuantityInt;
         phaseID   : Phases : ID;
         toProduct : Association to Products
-                        on  toProduct.ID    = productID
-                        and toProduct.mandt = mandt;
+                        on toProduct.ID = productID;
         toOrder   : Association to one Orders
-                        on  toOrder.ID    = orderID
-                        and toOrder.mandt = mandt;
+                        on toOrder.ID = orderID;
         toPhase   : Association to one Phases
-                        on  toPhase.ID    = phaseID
-                        and toPhase.mandt = mandt;
+                        on toPhase.ID = phaseID;
 }
 
 define view OrdersPhasesVH as

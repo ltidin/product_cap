@@ -1,9 +1,9 @@
-mandt,ID,name,description
-001,O0001,New order,
-001,O0002,Order in process,
-001,O0003,Order complete,
-001,O0004,Order rejected,
-001,P0001,Open,
-001,P0002,In process,
-001,P0003,Complete,
-001,P0004,Rejected,
+ID,name,description
+O0001,New order,
+O0002,Order in process,
+O0003,Order complete,
+O0004,Order rejected,
+P0001,Open,
+P0002,In process,
+P0003,Complete,
+P0004,Rejected,

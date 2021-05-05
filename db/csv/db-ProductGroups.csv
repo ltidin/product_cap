@@ -1,8 +1,8 @@
-mandt,id,name,imageURL
-001,1,Capital Goods,https://robohash.org/solutaaccusamusperferendis.png?size=50x50&set=set1
-001,2,Energy,https://robohash.org/dolorautasperiores.png?size=50x50&set=set1
-001,3,Health Care,https://robohash.org/autemeamolestiae.png?size=50x50&set=set1
-001,4,Finance,https://robohash.org/sitlaboriosamnostrum.png?size=50x50&set=set1
-001,5,Consumer Services,https://robohash.org/suntassumendaaccusamus.png?size=50x50&set=set1
-001,6,Public Utilities,https://robohash.org/ametutut.png?size=50x50&set=set1
-001,7,Technology,https://robohash.org/teneturvoluptatessed.png?size=50x50&set=set1
+id,name,imageURL
+1,Capital Goods,https://robohash.org/solutaaccusamusperferendis.png?size=50x50&set=set1
+2,Energy,https://robohash.org/dolorautasperiores.png?size=50x50&set=set1
+3,Health Care,https://robohash.org/autemeamolestiae.png?size=50x50&set=set1
+4,Finance,https://robohash.org/sitlaboriosamnostrum.png?size=50x50&set=set1
+5,Consumer Services,https://robohash.org/suntassumendaaccusamus.png?size=50x50&set=set1
+6,Public Utilities,https://robohash.org/ametutut.png?size=50x50&set=set1
+7,Technology,https://robohash.org/teneturvoluptatessed.png?size=50x50&set=set1

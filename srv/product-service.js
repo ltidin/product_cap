@@ -64,19 +64,18 @@ module.exports = cds.service.impl(async function () {
         let { Products, Ord2Prod, Orders } = this.entities;
         const srcQuery = req.query._target.name;
 
-        let orderParams = _parseQueryParams({ mandt: "", ID: "" }, srcQuery);
+        let orderParams = _parseQueryParams({ ID: "" }, srcQuery);
         //Check if 
-        let orderDetails = await db.read(Orders, { mandt: orderParams.mandt, ID: orderParams.ID });
+        let orderDetails = await db.read(Orders, { ID: orderParams.ID });
         if (orderDetails !== undefined && orderDetails.hasOwnProperty("phaseID")) {
             if (orderDetails.phaseID !== OrderPhases.new) {
                 return req.error({ code: "420", message: "Unable to add product to this order" });
             } else {
                 //Check if product exists in db
-                let productsToAdd = await db.read(Products, ["mandt", "ID as prodGUID"]).where({ mandt: orderParams.mandt, prodID: prodId });
+                let productsToAdd = await db.read(Products, ["ID as prodGUID"]).where({ prodID: prodId });
                 if (productsToAdd.length !== 0) {
                     //Add products to the order
                     let prodToOrders = {
-                        mandt: orderParams.mandt,
                         orderID: orderParams.ID,
                         productID: productsToAdd[0].prodGUID,
                         quantity: quantity,
